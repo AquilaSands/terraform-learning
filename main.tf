@@ -18,6 +18,13 @@ terraform {
       version = "~> 3.0.0"
     }
   }
+
+  backend "azurerm" {
+    resource_group_name  = "DevOps"
+    storage_account_name = "stweuaquilaterraform"
+    container_name       = "state"
+    key                  = "learn.001.tfstate"
+  }
 }
 
 provider "azurerm" {
