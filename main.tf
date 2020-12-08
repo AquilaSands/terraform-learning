@@ -177,7 +177,9 @@ resource "azuread_application" "api" {
 
 resource "null_resource" "api_known_clients" {
   provisioner "local-exec" {
-    command = "az ad app update --id ${azuread_application.api.id} --add knownClientApplications \"${azuread_application.spa.application_id}\""
+    # Can't use 'az ad app update' because it fails on the second run due to a duplicate value error
+    # This az rest command fails in CMD because of escaping but works in PS and bash
+    command = "az rest --method PATCH --uri https://graph.microsoft.com/beta/applications/${azuread_application.api.id} --headers Content-Type=application/json --b \"{\\\"api\\\":{\\\"knownClientApplications\\\":[\\\"${azuread_application.spa.application_id}\\\"]}}\""
   }
 }
 
