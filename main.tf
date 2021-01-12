@@ -31,14 +31,6 @@ provider "azurerm" {
   features {}
 }
 
-provider "random" {
-  version = "~> 2.2"
-}
-
-provider "null" {
-  version = "~> 3.0.0"
-}
-
 resource "random_id" "namespace_id" {
   byte_length = 2
 }
@@ -175,19 +167,19 @@ resource "azuread_application" "api" {
   }
 }
 
-resource "null_resource" "api_known_clients" {
-  provisioner "local-exec" {
-    # Can't use 'az ad app update' because it fails on the second run due to a duplicate value error
-    # This az rest command fails in CMD because of escaping but works in PS and bash
-    command = "az rest --method PATCH --uri https://graph.microsoft.com/beta/applications/${azuread_application.api.id} --headers Content-Type=application/json --b \"{\\\"api\\\":{\\\"knownClientApplications\\\":[\\\"${azuread_application.spa.application_id}\\\"]}}\""
-  }
-}
+# resource "null_resource" "api_known_clients" {
+#   provisioner "local-exec" {
+#     # Can't use 'az ad app update' because it fails on the second run due to a duplicate value error
+#     # This az rest command fails in CMD because of escaping but works in PS and bash
+#     command = "az rest --method PATCH --uri https://graph.microsoft.com/beta/applications/${azuread_application.api.id} --headers Content-Type=application/json --b \"{\\\"api\\\":{\\\"knownClientApplications\\\":[\\\"${azuread_application.spa.application_id}\\\"]}}\""
+#   }
+# }
 
-resource "null_resource" "api_pre_authorised_apps" {
-  provisioner "local-exec" {
-    # Can't use 'az ad app update' because it just doesn't work, might be a bug in the az cli.
-    # This az rest command fails in CMD because of escaping but works in PS and bash
-    command = "az rest --method PATCH --uri https://graph.microsoft.com/beta/applications/${azuread_application.api.id} --headers Content-Type=application/json --b \"{\\\"api\\\":{\\\"preAuthorizedApplications\\\":[{\\\"appId\\\":\\\"${azuread_application.spa.application_id}\\\",\\\"permissionIds\\\":${replace(jsonencode(azuread_application.api.oauth2_permissions[*].id),"\"","\\\"")}}]}}\""
+# resource "null_resource" "api_pre_authorised_apps" {
+#   provisioner "local-exec" {
+#     # Can't use 'az ad app update' because it just doesn't work, might be a bug in the az cli.
+#     # This az rest command fails in CMD because of escaping but works in PS and bash
+#     command = "az rest --method PATCH --uri https://graph.microsoft.com/beta/applications/${azuread_application.api.id} --headers Content-Type=application/json --b \"{\\\"api\\\":{\\\"preAuthorizedApplications\\\":[{\\\"appId\\\":\\\"${azuread_application.spa.application_id}\\\",\\\"permissionIds\\\":${replace(jsonencode(azuread_application.api.oauth2_permissions[*].id),"\"","\\\"")}}]}}\""
 
-  }
-}
+#   }
+# }
